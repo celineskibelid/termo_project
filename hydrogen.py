@@ -41,14 +41,27 @@ def f(x_o):
      s_o = 33.446*calj
   
      n = [1-x_o, x_o]
-     lnphi = eos_mix.thermo(T, 1e5, n, eos_mix.VAPPH)  
+     lnphi, = eos_mix.thermo(T, 1e5, n, eos_mix.VAPPH)
+     vg, = eos_mix.specific_volume(T, 1e5, n, eos_mix.VAPPH)
+     fug, = eos_mix.fugacity_tv(T, vg, n)
+     u_, = eos_mix.chemical_potential_tv(T, vg, n)
 
-     phi_p, = m.exp(lnphi[0])  # Replace 0 with the index of the relevant value
-     phi_o, = m.exp(lnphi[1])
-     DeltaG_o = (h_o-h_p)-T*(s_o-s_p)
-     R = 8.314 # kJ/molK
+     #fug_o, = fug[1]
+     #fug_p, = fug[0]
+     u_o = u_[1]
+     u_p = u_[0]
+
+     lnphi_p = lnphi[0]
+     lnphi_o = lnphi[1]
+     phi_p = m.exp(lnphi_p)
+     phi_o = m.exp(lnphi_o)
+     
+     #DeltaG_o = (h_p-h_o)-T*(s_p-s_o)
+     DeltaG_o =  u_o*1000 - u_p*1000
+     R = 8.314 # J/molK
      
      eq = x_o/(1-x_o) - (phi_p/phi_o)*m.exp(-DeltaG_o/(R*T))
+     #eq = m.log(fug[1]/fug[0]) + DeltaG_o/(R*T)
      return eq
 
 initial_guess = 0.5
